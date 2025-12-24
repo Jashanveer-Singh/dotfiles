@@ -61,58 +61,11 @@ for tool link in ${(kv)TOOLS}; do
   fi
 done
 
-# -------------------------
-# config paths
-# -------------------------
-declare -A CONFIG_PATHS
-CONFIG_PATHS=(
-  [zsh]="$HOME/.zshrc"
-  [nvim]="$HOME/.config/nvim"
-  [tmux]="$HOME/.tmux.conf"
-  [kitty]="$HOME/.config/kitty"
-  [starship]="$HOME/.config/starship.toml"
-  [git]="$HOME/.gitconfig"
-)
-
-# -------------------------
-# backup existing configs
-# -------------------------
-FOUND_CONFIGS=()
-
-for tool in $INSTALLED_TOOLS; do
-  path="${CONFIG_PATHS[$tool]}"
-  [[ -n "$path" && -e "$path" ]] && FOUND_CONFIGS+=("$tool:$path")
-done
-
-if (( ${#FOUND_CONFIGS[@]} > 0 )); then
-  warn "Existing configuration files detected:"
-  for item in $FOUND_CONFIGS; do
-    echo "   - ${item#*:}"
-  done
-
-  if ! confirm "Backup existing configs and continue?"; then
+echo "make sure to backup your config before continuing"
+  if ! confirm "do you want to continue"; then
     error "Aborted by user."
     exit 1
   fi
-
-  for item in $FOUND_CONFIGS; do
-    tool="${item%%:*}"
-    path="${item#*:}"
-
-    if [[ "$tool" == "git" ]]; then
-      if confirm "Copy existing git config?"; then
-        cp "$path" "$BACKUP_DIR/gitconfig.backup"
-        info "Git config backed up."
-      else
-        info "Skipped git config backup."
-      fi
-      continue
-    fi
-
-    mv "$path" "$BACKUP_DIR/$(basename "$path").backup"
-    info "Backed up $path"
-  done
-fi
 
 # -------------------------
 # stow
@@ -123,27 +76,29 @@ if ! command_exists stow; then
   exit 0
 fi
 
-STOW_TARGETS=()
-
-for tool in $INSTALLED_TOOLS; do
-  [[ -d "$DOTFILES_DIR/$tool" ]] && STOW_TARGETS+=("$tool")
-done
-
-if (( ${#STOW_TARGETS[@]} == 0 )); then
-  warn "No stowable directories found."
-  exit 0
-fi
-
 cd "$DOTFILES_DIR"
 
-info "Ready to stow: ${STOW_TARGETS[*]}"
+STOWED_TOOLS=()
+SKIPPED_TOOLS=()
 
-if confirm "Proceed with stow?"; then
-  stow "${STOW_TARGETS[@]}"
-  info "Dotfiles successfully stowed."
-else
-  warn "Stow skipped."
-fi
+for tool in "${INSTALLED_TOOLS[@]}"; do
+  if [[ -d "$DOTFILES_DIR/$tool" ]]; then
+    if confirm "Apply $tool configuration?"; then
+      stow "$tool"
+      STOWED_TOOLS+=("$tool")
+    else
+      SKIPPED_TOOLS+=("$tool")
+    fi
+  fi
+done
 
-echo "✅ Setup complete (partial installs allowed)."
+  echo "\ntools configured"
+for tool in "${STOWED_TOOLS[@]}"; do
+  echo "$tool"
+done
+echo "\ntools skipped"
+for tool in "${SKIPPED_TOOLS[@]}"; do
+  echo "$tool"
+done
+echo "✅ Setup complete."
 
