@@ -1,0 +1,8 @@
+[user]
+	name = jass
+	email = puniajashan85@gmail.com
+[credential]
+	helper = /usr/local/bin/git-credential-manager
+	credentialstore = secretservice
+[credential "https://dev.azure.com"]
+	usehttppath = true
