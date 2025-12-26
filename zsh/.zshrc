@@ -12,7 +12,7 @@ alias cb='cargo build'
 alias cr='cargo run'
 
 export PATH=/opt/firefox/firefox:$PATH
-export PATH=/home/jass/go/bin/:$PATH
+export PATH=$HOME/go/bin/:$PATH
 
 eval "$(starship init zsh)"
 
@@ -21,9 +21,9 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt SHARE_HISTORY
 
-source /home/jass/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-source ~/.config/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOME/.config/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
